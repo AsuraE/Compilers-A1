@@ -1,4 +1,5 @@
 package tree;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -106,25 +107,39 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginCheck("Assignment");
         // Check the left side left value.
-        ExpNode left = node.getVariable().transform( this );
-        node.setVariable( left );
-        // Check the right side expression.
-        ExpNode exp = node.getExp().transform( this );
-        node.setExp( exp );
-        // Validate that it is a true left value and not a constant.
-        Type lvalType = left.getType();
-        if( ! (lvalType instanceof Type.ReferenceType) ) {
-            if( lvalType != Type.ERROR_TYPE ) {
-                staticError( "variable (i.e., L-Value) expected", left.getPosition() );
-            }
-        } else {
-            /* Validate that the right expression is assignment
-             * compatible with the left value. This may require that the 
-             * right side expression is coerced to the dereferenced
-             * type of the left side LValue. */
-            Type baseType = ((Type.ReferenceType)lvalType).getBaseType();
-            node.setExp( baseType.coerceExp( exp ) );
+        ArrayList<ExpNode> left = new ArrayList<ExpNode>();
+        ArrayList<ExpNode> right = new ArrayList<ExpNode>();
+        HashSet<ExpNode> dupes = new HashSet<ExpNode>();
+        left.addAll( node.getVariables() );
+        right.addAll( node.getExps() );
+        
+        for ( int i = 0; i < left.size(); i++ ) {
+        	ExpNode l = left.get(i).transform( this );
+        	left.set( i, l );
+        	// Check the right side expression.
+        	ExpNode r = right.get(i).transform( this );
+        	right.set( i, r );
+	        // Validate that it is a true left value and not a constant.
+	        Type lvalType = l.getType();
+	        if( ! (lvalType instanceof Type.ReferenceType) ) {
+	            if( lvalType != Type.ERROR_TYPE ) {
+	                staticError( "variable (i.e., L-Value) expected", l.getPosition() );
+	            }
+	        } else if ( !dupes.add( l ) ) {
+	        	errors.error( "duplicate lvalue", left.get(i).getPosition() );
+	        }
+	        else {
+	            /* Validate that the right expression is assignment
+	             * compatible with the left value. This may require that the 
+	             * right side expression is coerced to the dereferenced
+	             * type of the left side LValue. */
+	            Type baseType = ((Type.ReferenceType)lvalType).getBaseType();
+	            right.set( i, ( baseType.coerceExp( r ) ) );
+	        }
         }
+        
+        node.setVariables( left );
+        node.setExps( right );
         endCheck("Assignment");
     }
 

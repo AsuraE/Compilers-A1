@@ -1,4 +1,5 @@
 package tree;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -109,13 +110,22 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
     /** Code generation for an assignment statement. */
     public Code visitAssignmentNode(StatementNode.AssignmentNode node) {
-        /* Generate code to evaluate the expression */
-        Code code = node.getExp().genCode( this );
-        /* Generate the code to load the address of the variable */
-        code.append( node.getVariable().genCode( this ) );
-        /* Generate the store based on the type/size of value */
-        code.append( genStore( 
-                (Type.ReferenceType)node.getVariable().getType() ) );
+    	ArrayList<ExpNode> vars = new ArrayList<ExpNode>();
+    	vars.addAll( node.getVariables() );
+    	Code code = new Code();
+    	
+    	/* Generate code to evaluate the expressions first */
+    	for ( ExpNode exp : node.getExps() ) {
+    		code.append( exp.genCode(this) );
+    	}
+    	
+        /* Generate the code to load the addresses of the variables (FIFO) */
+    	for ( int i = vars.size() - 1; i >= 0; i-- ) {
+	        code.append( vars.get(i).genCode( this ) );
+	        /* Generate the store based on the type/size of value */
+	        code.append( genStore( 
+	                (Type.ReferenceType)vars.get(i).getType() ) );
+    	}
         return code;
     }
     /** Generate a store instruction based on the size of values of the type */

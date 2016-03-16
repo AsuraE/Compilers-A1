@@ -1,6 +1,7 @@
 package parser;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import source.ErrorHandler;
 import source.Errors;
@@ -44,7 +45,8 @@ import tree.StatementNode;
  *  CompoundStatement -> KW_BEGIN StatementList KW_END
  *  StatementList -> Statement { SEMICOLON Statement }
  *  Statement -> WhileStatement | IfStatement | CallStatement | Assignment | 
- *               ReadStatement | WriteStatement | CompoundStatement | SkipStatement
+ *               ReadStatement | WriteStatement | CompoundStatement | 
+ *               SkipStatement
  *  SkipStatement -> KW_SKIP
  *  Assignment -> LValueList ASSIGN ConditionList
  *  LValueList -> LValue { COMMA LValue }
@@ -497,21 +499,38 @@ public class Parser {
         tokens.endRule( "Statement", recoverSet );
         return result;
     }
-    /** Rule: Assignment -> LValue ASSIGN Condition */
+    /** Rule: Assignment -> LValueList ASSIGN ConditionList */
     private StatementNode.AssignmentNode parseAssignment(TokenSet recoverSet) {
         if( !tokens.beginRule( "Assignment", LVALUE_START_SET, recoverSet ) ) {
-            return new StatementNode.AssignmentNode( tokens.getPosn(), 
-                    new ExpNode.ErrorNode( tokens.getPosn() ), 
-                    new ExpNode.ErrorNode( tokens.getPosn() ) );
+        	ArrayList<ExpNode> el = new ArrayList<ExpNode>();
+            ArrayList<ExpNode> er = new ArrayList<ExpNode>();
+            el.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+            er.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+        	return new StatementNode.AssignmentNode( tokens.getPosn(), el, er );
         }
         /* Non-standard recovery set includes EQUALS because a common syntax
          * error is to use EQUALS instead of ASSIGN.
          */
-        ExpNode left = parseLValue( 
-                recoverSet.union( Token.ASSIGN, Token.EQUALS ) );
+        ArrayList<ExpNode> left = new ArrayList<ExpNode>();
+        ArrayList<ExpNode> right = new ArrayList<ExpNode>();
+        left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS ) ) 
+        		);
         Position pos = tokens.getPosn();
+        while ( tokens.isMatch( Token.COMMA ) ) {
+        	tokens.match( Token.COMMA, CONDITION_START_SET );
+        	left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS) 
+        			) );
+        	pos = tokens.getPosn();
+        }
         tokens.match( Token.ASSIGN, CONDITION_START_SET );
-        ExpNode right = parseCondition( recoverSet );
+        
+        while ( tokens.isMatch( Token.COMMA ) ) {
+        	tokens.match( Token.COMMA, CONDITION_START_SET );
+        	right.add( parseCondition( 
+        			recoverSet.union( Token.ASSIGN, Token.EQUALS ) ) );
+        	pos = tokens.getPosn();
+        }
+
         tokens.endRule( "Assignment", recoverSet );
         return new StatementNode.AssignmentNode( pos, left, right );
     }
@@ -553,8 +572,11 @@ public class Parser {
         tokens.endRule( "Read Statement", recoverSet );
         // A read statement is treated as an assignment of the value read
         // to the variable. A ReadNode is an expression.
-        return new StatementNode.AssignmentNode( pos, lval, 
-                        new ExpNode.ReadNode( pos ) );
+        ArrayList<ExpNode> left = new ArrayList<ExpNode>();
+        ArrayList<ExpNode> right = new ArrayList<ExpNode>();
+        left.add( lval );
+        right.add( new ExpNode.ReadNode( pos ) );
+        return new StatementNode.AssignmentNode( pos, left, right );
     }
     /** Rule: WriteStatement -> KW_WRITE Exp */
     private StatementNode parseWriteStatement( TokenSet recoverSet ) {

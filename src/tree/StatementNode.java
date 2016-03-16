@@ -154,14 +154,17 @@ public abstract class StatementNode {
     /** Tree node representing an assignment statement. */
     public static class AssignmentNode extends StatementNode {
         /** Tree node for expression on left hand side of an assignment. */
-        private ExpNode lValue;
+        private ArrayList<ExpNode> lValues;
         /** Tree node for the expression to be assigned. */
-        private ExpNode exp;
+        private ArrayList<ExpNode> exps;
 
-        public AssignmentNode( Position pos, ExpNode variable, ExpNode exp ) {
+        public AssignmentNode( Position pos, ArrayList<ExpNode> left, 
+        		ArrayList<ExpNode> right ) {
             super( pos );
-            this.lValue = variable;
-            this.exp = exp;
+            lValues = new ArrayList<ExpNode>();
+            exps = new ArrayList<ExpNode>();
+            lValues.addAll( left );
+            exps.addAll( right );
         }
         @Override
         public void accept( StatementVisitor visitor ) {
@@ -171,29 +174,49 @@ public abstract class StatementNode {
         public Code genCode( StatementTransform<Code> visitor ) {
             return visitor.visitAssignmentNode( this );
         }
-        public ExpNode getVariable() {
-            return lValue;
+        public ArrayList<ExpNode> getVariables() {
+            return lValues;
         }
-        public void setVariable( ExpNode variable ) {
-            this.lValue = variable;
+        public void setVariables( ArrayList<ExpNode> variables ) {
+            this.lValues.addAll( variables );
         }
-        public ExpNode getExp() {
-            return exp;
+        public ArrayList<ExpNode> getExps() {
+            return exps;
         }
-        public void setExp(ExpNode exp) {
-            this.exp = exp;
+        public void setExps(ArrayList<ExpNode> exps) {
+            this.exps.addAll( exps );
         }
-        public String getVariableName() {
-            if( lValue instanceof ExpNode.VariableNode ) {
-                return 
-                    ((ExpNode.VariableNode)lValue).getVariable().getIdent();
-            } else {
-                return "<noname>";
-            }
+        public ArrayList<String> getVariableNames() {
+        	ArrayList<String> names = new ArrayList<String>();
+        	for ( ExpNode lValue : lValues ) {
+	            if( lValue instanceof ExpNode.VariableNode ) {
+	                names.add( ( ( ExpNode.VariableNode )lValue )
+	                		.getVariable().getIdent() );
+	            } else {
+	                names.add( "<noname>" );
+	            }
+        	}
+        	
+        	return names;
         }
         @Override
         public String toString( int level ) {
-            return lValue.toString() + " := " + exp.toString();
+        	String s = "";
+        	
+        	for ( int i = 0; i < lValues.size(); i++ ) {
+        		s += lValues.get(i);
+        		if ( i < lValues.size() - 1 ) {
+        			s += ",";
+        		}
+        	}
+        	s += " := ";
+        	for ( int i = 0; i < exps.size(); i++ ) {
+        		s += exps.get(i);
+        		if ( i < exps.size() - 1 ) {
+        			s += ",";
+        		}
+        	}
+            return s;
         }
     }
     /** Tree node representing a "write" statement. */

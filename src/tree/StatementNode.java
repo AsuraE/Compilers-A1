@@ -161,10 +161,10 @@ public abstract class StatementNode {
         public AssignmentNode( Position pos, ArrayList<ExpNode> left, 
         		ArrayList<ExpNode> right ) {
             super( pos );
-            lValues = new ArrayList<ExpNode>();
-            exps = new ArrayList<ExpNode>();
-            lValues.addAll( left );
-            exps.addAll( right );
+            this.lValues = new ArrayList<ExpNode>();
+            this.exps = new ArrayList<ExpNode>();
+            this.lValues.addAll( left );
+            this.exps.addAll( right );
         }
         @Override
         public void accept( StatementVisitor visitor ) {
@@ -178,20 +178,22 @@ public abstract class StatementNode {
             return lValues;
         }
         public void setVariables( ArrayList<ExpNode> variables ) {
+            this.lValues = new ArrayList<ExpNode>();
             this.lValues.addAll( variables );
         }
         public ArrayList<ExpNode> getExps() {
             return exps;
         }
         public void setExps(ArrayList<ExpNode> exps) {
+            this.exps = new ArrayList<ExpNode>();
             this.exps.addAll( exps );
         }
         public ArrayList<String> getVariableNames() {
         	ArrayList<String> names = new ArrayList<String>();
         	for ( ExpNode lValue : lValues ) {
+        		System.out.println("Vars: " + lValue.toString() + " : " + lValue.getType());
 	            if( lValue instanceof ExpNode.VariableNode ) {
-	                names.add( ( ( ExpNode.VariableNode )lValue )
-	                		.getVariable().getIdent() );
+	                names.add( ((ExpNode.VariableNode)lValue).getVariable().getIdent() );
 	            } else {
 	                names.add( "<noname>" );
 	            }

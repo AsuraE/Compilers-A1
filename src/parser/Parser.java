@@ -523,12 +523,11 @@ public class Parser {
         	pos = tokens.getPosn();
         }
         tokens.match( Token.ASSIGN, CONDITION_START_SET );
-        right.add( parseCondition( recoverSet.union( Token.ASSIGN, Token.EQUALS, 
-        		Token.COMMA ) ) );
+        right.add( parseCondition( recoverSet.union( Token.COMMA ) ) );
         while ( tokens.isMatch( Token.COMMA ) ) {
         	tokens.match( Token.COMMA, CONDITION_START_SET );
         	right.add( parseCondition( 
-        			recoverSet.union( Token.ASSIGN, Token.EQUALS, Token.COMMA 
+        			recoverSet.union( Token.COMMA 
         			) ) );
         }
 
@@ -545,16 +544,13 @@ public class Parser {
         	while ( left.size() > right.size() ) {
         		right.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
         	}
-        }
-        
-        if ( left.size() < right.size() ) {
+        } else if ( left.size() < right.size() ) {
         	errors.error("number of variables doesn't match number of "
         			+ "expressions in assignment", pos);
         	while ( left.size() < right.size() ) {
         		left.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
         	}
         }
-        
         
         tokens.endRule( "Assignment", recoverSet );
         return new StatementNode.AssignmentNode( pos, left, right );

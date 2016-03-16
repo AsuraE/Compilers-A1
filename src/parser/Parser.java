@@ -46,7 +46,9 @@ import tree.StatementNode;
  *  Statement -> WhileStatement | IfStatement | CallStatement | Assignment | 
  *               ReadStatement | WriteStatement | CompoundStatement | SkipStatement
  *  SkipStatement -> KW_SKIP
- *  Assignment -> LValue ASSIGN Condition
+ *  Assignment -> LValueList ASSIGN ConditionList
+ *  LValueList -> LValue { COMMA LValue }
+ *  ConditionList -> Condition { COMMA Condition }
  *  WhileStatement -> KW_WHILE Condition KW_DO Statement
  *  IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
  *  CallStatement -> KW_CALL IDENTIFIER LPAREN ActualParameters RPAREN

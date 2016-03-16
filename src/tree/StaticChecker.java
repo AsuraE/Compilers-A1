@@ -125,16 +125,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 	                staticError( "variable (i.e., L-Value) expected", l.getPosition() );
 	            }
 	        } else if ( !dupes.add( l.toString() ) ) {
-	        	errors.error( "duplicate lvalue", left.get(i).getPosition() );
-	        }
-	        else {
+		        	errors.error( "duplicate lvalue", left.get(i).getPosition() );
+	        } else {
 	            /* Validate that the right expression is assignment
 	             * compatible with the left value. This may require that the 
 	             * right side expression is coerced to the dereferenced
 	             * type of the left side LValue. */
 	            Type baseType = ((Type.ReferenceType)lvalType).getBaseType();
 	            right.set( i, ( baseType.coerceExp( r ) ) );
-	        }
+	        }		
         }
         
         node.setVariables( left );

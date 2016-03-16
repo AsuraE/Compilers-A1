@@ -530,16 +530,29 @@ public class Parser {
         	right.add( parseCondition( 
         			recoverSet.union( Token.ASSIGN, Token.EQUALS, Token.COMMA 
         			) ) );
-        	pos = tokens.getPosn();
         }
 
         /* At this point left and right could be different sizes. 
-         * If left > right, we want to add in error nodes on right side to
-         * balance it out.
+         * If left != right , we want to add in error nodes to balance it out.
          */
-        while ( left.size() > right.size() ) {
-        	errors.error("not enough conditions", pos);
-        	right.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+        
+        /* Contain while loop in an if statement so that error is only 
+         * output once.
+         */
+        if ( left.size() > right.size() ) {
+        	errors.error("number of variables doesn't match number of "
+        			+ "expressions in assignment", pos);
+        	while ( left.size() > right.size() ) {
+        		right.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+        	}
+        }
+        
+        if ( left.size() < right.size() ) {
+        	errors.error("number of variables doesn't match number of "
+        			+ "expressions in assignment", pos);
+        	while ( left.size() < right.size() ) {
+        		left.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+        	}
         }
         
         

@@ -487,6 +487,7 @@ public class Parser {
             break;
         case KW_SKIP:
         	result = parseSkipStatement( recoverSet );
+        	break;
         default:
             fatal( "parse Statement " );
             result = new StatementNode.ErrorNode( tokens.getPosn() );

@@ -1,0 +1,13 @@
+var
+  x : int;
+  y : int;
+  max : int;
+begin
+  x := 2;
+  y := 6;
+  do x if b then max := x exit // invalid if in condition
+  od;
+  do x <= y then max := y; exit // invalid semicolon before exit
+  [] y <= x then max := x exit
+  end // do should end with od
+end

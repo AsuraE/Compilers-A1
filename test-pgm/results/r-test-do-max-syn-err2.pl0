@@ -1,0 +1,14 @@
+Compiling test-do-max-syn-err2.pl0
+    10   do x <= y then max := y ext // exit misspelt
+******                           ^  Error: identifier("ext") cannot follow LValue in Factor
+    13   do x <= y the max := y exit // then misspelt
+******             ^  Error: identifier("the") cannot follow LValue in Factor
+    14   od;
+******   ^  Error: Parse error, expecting 'then' in Do Branch
+******     ^  Error: ';' at line 14 column 4 cannot start Statement List
+******     ^  Error: Parse error, expecting 'od' in Do Statement
+    16   ] y <= x then max := x // [] misspelt
+******   ^  Error: ']' at line 16 column 2 cannot follow Do Branch in Do Statement
+Parsing complete
+Static semantic analysis complete
+6 errors detected.

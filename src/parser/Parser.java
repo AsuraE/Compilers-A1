@@ -513,24 +513,36 @@ public class Parser {
          */
         ArrayList<ExpNode> left = new ArrayList<ExpNode>();
         ArrayList<ExpNode> right = new ArrayList<ExpNode>();
-        left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS ) ) 
-        		);
+        left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS,
+        		Token.COMMA ) ) );
         Position pos = tokens.getPosn();
         while ( tokens.isMatch( Token.COMMA ) ) {
-        	tokens.match( Token.COMMA, CONDITION_START_SET );
-        	left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS) 
-        			) );
+        	tokens.match( Token.COMMA, LVALUE_START_SET );
+        	left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS,
+        			Token.COMMA ) ) );
         	pos = tokens.getPosn();
         }
         tokens.match( Token.ASSIGN, CONDITION_START_SET );
-        
+        right.add( parseCondition( recoverSet.union( Token.ASSIGN, Token.EQUALS, 
+        		Token.COMMA ) ) );
         while ( tokens.isMatch( Token.COMMA ) ) {
         	tokens.match( Token.COMMA, CONDITION_START_SET );
         	right.add( parseCondition( 
-        			recoverSet.union( Token.ASSIGN, Token.EQUALS ) ) );
+        			recoverSet.union( Token.ASSIGN, Token.EQUALS, Token.COMMA 
+        			) ) );
         	pos = tokens.getPosn();
         }
 
+        /* At this point left and right could be different sizes. 
+         * If left > right, we want to add in error nodes on right side to
+         * balance it out.
+         */
+        while ( left.size() > right.size() ) {
+        	errors.error("not enough conditions", pos);
+        	right.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+        }
+        
+        
         tokens.endRule( "Assignment", recoverSet );
         return new StatementNode.AssignmentNode( pos, left, right );
     }

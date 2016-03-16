@@ -109,10 +109,9 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         // Check the left side left value.
         ArrayList<ExpNode> left = new ArrayList<ExpNode>();
         ArrayList<ExpNode> right = new ArrayList<ExpNode>();
-        HashSet<ExpNode> dupes = new HashSet<ExpNode>();
+        HashSet<String> dupes = new HashSet<String>();
         left.addAll( node.getVariables() );
         right.addAll( node.getExps() );
-        
         for ( int i = 0; i < left.size(); i++ ) {
         	ExpNode l = left.get(i).transform( this );
         	left.set( i, l );
@@ -125,7 +124,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 	            if( lvalType != Type.ERROR_TYPE ) {
 	                staticError( "variable (i.e., L-Value) expected", l.getPosition() );
 	            }
-	        } else if ( !dupes.add( l ) ) {
+	        } else if ( !dupes.add( l.toString() ) ) {
 	        	errors.error( "duplicate lvalue", left.get(i).getPosition() );
 	        }
 	        else {

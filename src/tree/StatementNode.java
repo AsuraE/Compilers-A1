@@ -191,8 +191,7 @@ public abstract class StatementNode {
         public ArrayList<String> getVariableNames() {
         	ArrayList<String> names = new ArrayList<String>();
         	for ( ExpNode lValue : lValues ) {
-        		System.out.println("Vars: " + lValue.toString() + " : " + lValue.getType());
-	            if( lValue instanceof ExpNode.VariableNode ) {
+        		if( lValue instanceof ExpNode.VariableNode ) {
 	                names.add( ((ExpNode.VariableNode)lValue).getVariable().getIdent() );
 	            } else {
 	                names.add( "<noname>" );

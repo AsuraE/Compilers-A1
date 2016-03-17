@@ -117,9 +117,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         for ( int i = 0; i < left.size(); i++ ) {
         	ExpNode l = left.get(i).transform( this );
         	left.set( i, l );
+        	node.setVariables( left );
         	// Check the right side expression.
         	ExpNode r = right.get(i).transform( this );
         	right.set( i, r );
+        	node.setExps( right );
 	        // Validate that it is a true left value and not a constant.
 	        Type lvalType = l.getType();
 	        
@@ -128,7 +130,6 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 	                staticError( "variable (i.e., L-Value) expected", l.getPosition() );
 	            }
 	        } else if ( !dupes.add( l.toString() ) ) {
-	        		// TODO: Print out variable name
 		        	staticError( node.getVariableNames().get(i) + " assigned more than once", l.getPosition() );
 	        } else {
 	            /* Validate that the right expression is assignment
@@ -140,8 +141,6 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 	        }		
         }
         
-        node.setVariables( left );
-        node.setExps( right );
         endCheck("Assignment");
     }
 

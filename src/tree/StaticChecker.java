@@ -210,6 +210,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     public void visitSkipNode(StatementNode.SkipNode node) {
     	// Nothing to do - skip is blank
     }
+
+	public void visitDoNode(DoNode node) {
+		
+		
+	}
+	
+	public void visitDoBranchNode(DoBranchNode node) {
+		
+	}
     /*************************************************
      *  Expression node static checker visit methods
      *  The static checking visitor methods for expressions

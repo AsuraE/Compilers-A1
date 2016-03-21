@@ -210,9 +210,20 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
     
+    /** Generate code for a "do" statement. */
+    public Code visitDoNode(StatementNode.DoNode node) {
+    	Code code = new Code();
+    	return code;
+    }
+    
+    /** Generate code for a "do" branch. */
+    public Code visitDoBranchNode(StatementNode.DoBranchNode node) {
+    	Code code = new Code();
+    	return code;
+    }
+    
     /** Generate code for a "skip" statement. */
     public Code visitSkipNode(StatementNode.SkipNode node) {
-    	/* A skip statement should return no code, so return an empty code */
     	return new Code();
     }
     

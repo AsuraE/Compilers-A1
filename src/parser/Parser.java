@@ -567,6 +567,24 @@ public class Parser {
         tokens.endRule( "While Statement", recoverSet );
         return new StatementNode.WhileNode( pos, cond, statement );
     }
+    /** Rule: DoStatement -> KW_DO DoBranch { SEPARATOR DoBranch } KW_OD */
+    private StatementNode parseDoStatement( TokenSet recoverSet ) {
+    	ArrayList<StatementNode> doBranches = new ArrayList<StatementNode>();
+    	assert tokens.isMatch( Token.KW_DO );
+    	tokens.beginRule( "Do Statement", Token.KW_DO );
+    	Position pos = tokens.getPosn();
+    	tokens.match( Token.KW_DO );
+    	doBranches.add( parseDoBranch( recoverSet ) );
+   
+    	return new StatementNode.DoNode( pos );
+    }
+    
+    /** Rule: DoBranch -> Condition KW_THEN StatementList [KW_EXIT] */
+    private StatementNode parseDoBranch( TokenSet recoverSet ) {
+    	Position pos = tokens.getPosn();
+    	return new StatementNode.DoBranchNode( pos );
+    }
+    
     /** Rule: IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
      */
     private StatementNode parseIfStatement( TokenSet recoverSet ) {

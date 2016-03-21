@@ -390,6 +390,42 @@ public abstract class StatementNode {
         }
     }
     
+    /** Tree node representing a "do" statement. */
+    public static class DoNode extends StatementNode {
+    	public DoNode( Position pos ) {
+    		super( pos );
+    	}
+    	@Override
+    	public void accept( StatementVisitor visitor ) {
+    		visitor.visitDoNode( this );
+    	}
+    	@Override
+    	public Code genCode( StatementTransform<Code> visitor ) {
+    		return visitor.visitDoNode( this );
+    	}
+    	@Override
+    	public String toString( int level ) {
+    		return "";
+    	}
+    }
+    /** Tree node representing a "do" branch. */
+    public static class DoBranchNode extends StatementNode {
+    	public DoBranchNode( Position pos ) {
+    		super( pos );
+    	}
+    	@Override
+    	public void accept( StatementVisitor visitor ) {
+    		visitor.visitDoBranchNode( this );
+    	}
+    	@Override
+    	public Code genCode( StatementTransform<Code> visitor ) {
+    		return visitor.visitDoBranchNode( this );
+    	}
+    	@Override
+    	public String toString( int level ) {
+    		return "";
+    	}
+    }
     /** Tree node representing a "skip" statement. */
     public static class SkipNode extends StatementNode {
 

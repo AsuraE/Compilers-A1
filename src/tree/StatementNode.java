@@ -392,8 +392,13 @@ public abstract class StatementNode {
     
     /** Tree node representing a "do" statement. */
     public static class DoNode extends StatementNode {
-    	public DoNode( Position pos ) {
+    	
+    	private ArrayList<StatementNode.DoBranchNode> doBranches;
+    	
+    	public DoNode( Position pos, ArrayList<StatementNode.DoBranchNode> doBranches ) {
     		super( pos );
+    		this.doBranches = new ArrayList<StatementNode.DoBranchNode>();
+    		this.doBranches.addAll( doBranches );
     	}
     	@Override
     	public void accept( StatementVisitor visitor ) {
@@ -407,11 +412,26 @@ public abstract class StatementNode {
     	public String toString( int level ) {
     		return "";
     	}
+    	public boolean exits() {
+    		for( StatementNode.DoBranchNode branch: doBranches ) {
+    			if( branch.exits() ) {
+    				return true;
+    			}
+    		}
+    		return false;
+    	}
     }
     /** Tree node representing a "do" branch. */
     public static class DoBranchNode extends StatementNode {
-    	public DoBranchNode( Position pos ) {
+    	ExpNode cond;
+    	StatementNode statList;
+    	boolean exits;
+    	
+    	public DoBranchNode( Position pos, ExpNode cond, StatementNode statList, boolean exits ) {
     		super( pos );
+    		this.cond = cond;
+    		this.statList = statList;
+    		this.exits = exits;
     	}
     	@Override
     	public void accept( StatementVisitor visitor ) {
@@ -424,6 +444,9 @@ public abstract class StatementNode {
     	@Override
     	public String toString( int level ) {
     		return "";
+    	}
+    	public boolean exits() {
+    		return exits;
     	}
     }
     /** Tree node representing a "skip" statement. */

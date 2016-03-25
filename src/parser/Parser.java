@@ -492,6 +492,9 @@ public class Parser {
         case KW_SKIP:
         	result = parseSkipStatement( recoverSet );
         	break;
+        case KW_DO:
+        	result = parseDoStatement( recoverSet );
+        	break;
         default:
             fatal( "parse Statement " );
             result = new StatementNode.ErrorNode( tokens.getPosn() );
@@ -569,20 +572,33 @@ public class Parser {
     }
     /** Rule: DoStatement -> KW_DO DoBranch { SEPARATOR DoBranch } KW_OD */
     private StatementNode parseDoStatement( TokenSet recoverSet ) {
-    	ArrayList<StatementNode> doBranches = new ArrayList<StatementNode>();
+    	ArrayList<StatementNode.DoBranchNode> doBranches = new ArrayList<StatementNode.DoBranchNode>();
     	assert tokens.isMatch( Token.KW_DO );
     	tokens.beginRule( "Do Statement", Token.KW_DO );
     	Position pos = tokens.getPosn();
     	tokens.match( Token.KW_DO );
     	doBranches.add( parseDoBranch( recoverSet ) );
-   
-    	return new StatementNode.DoNode( pos );
+    	while( tokens.isMatch( Token.SEPARATOR ) ) {
+    		tokens.match( Token.SEPARATOR );
+    		doBranches.add( parseDoBranch( recoverSet ) );
+    	}
+    	tokens.match( Token.KW_OD );
+    	tokens.endRule( "Do Statement", recoverSet);
+    	return new StatementNode.DoNode( pos, doBranches );
     }
     
     /** Rule: DoBranch -> Condition KW_THEN StatementList [KW_EXIT] */
-    private StatementNode parseDoBranch( TokenSet recoverSet ) {
+    private StatementNode.DoBranchNode parseDoBranch( TokenSet recoverSet ) {
     	Position pos = tokens.getPosn();
-    	return new StatementNode.DoBranchNode( pos );
+    	ExpNode cond = parseCondition( recoverSet.union( Token.KW_THEN ) );
+    	tokens.match( Token.KW_THEN, STATEMENT_START_SET );
+    	StatementNode statList = parseStatementList( recoverSet.union( Token.KW_EXIT ) );
+    	boolean exits = false;
+    	if( tokens.isMatch( Token.KW_EXIT ) ) {
+    		tokens.match( Token.KW_EXIT );
+    		exits = true;
+    	}
+    	return new StatementNode.DoBranchNode( pos, cond, statList, exits );
     }
     
     /** Rule: IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement

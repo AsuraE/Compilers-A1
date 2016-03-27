@@ -572,11 +572,13 @@ public class Parser {
     }
     /** Rule: DoStatement -> KW_DO DoBranch { SEPARATOR DoBranch } KW_OD */
     private StatementNode parseDoStatement( TokenSet recoverSet ) {
-    	ArrayList<StatementNode.DoBranchNode> doBranches = new ArrayList<StatementNode.DoBranchNode>();
     	assert tokens.isMatch( Token.KW_DO );
     	tokens.beginRule( "Do Statement", Token.KW_DO );
+    	ArrayList<StatementNode.DoBranchNode> doBranches = new 
+    			ArrayList<StatementNode.DoBranchNode>();
     	Position pos = tokens.getPosn();
     	tokens.match( Token.KW_DO );
+    	
     	doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
     			Token.KW_OD) ) );
     	while( tokens.isMatch( Token.SEPARATOR ) ) {
@@ -584,13 +586,14 @@ public class Parser {
     		doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
         			Token.KW_OD) ) );
     	}
-    	tokens.match( Token.KW_OD );
+    	tokens.match( Token.KW_OD, recoverSet );
     	tokens.endRule( "Do Statement", recoverSet);
     	return new StatementNode.DoNode( pos, doBranches );
     }
     
     /** Rule: DoBranch -> Condition KW_THEN StatementList [KW_EXIT] */
     private StatementNode.DoBranchNode parseDoBranch( TokenSet recoverSet ) {
+    	tokens.beginRule( "Do Branch", CONDITION_START_SET );
     	Position pos = tokens.getPosn();
     	ExpNode cond = parseCondition( recoverSet.union( Token.KW_THEN ) );
     	tokens.match( Token.KW_THEN, STATEMENT_START_SET );
@@ -600,6 +603,7 @@ public class Parser {
     		tokens.match( Token.KW_EXIT );
     		exits = true;
     	}
+    	tokens.endRule( "Do Branch", recoverSet );
     	return new StatementNode.DoBranchNode( pos, cond, statList, exits );
     }
     

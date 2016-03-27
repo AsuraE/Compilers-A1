@@ -223,8 +223,9 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     		doBranchCode.add( branch.genCode( this ) );
     	}
     	
-    	// Gen stop code
+    	// Generate stop code
     	Code stop = new Code();
+    	stop.genLoadConstant( StackMachine.NO_TRUE_BRANCH );
     	stop.generateOp( Operation.STOP );
     	
     	// Append each branch to the main code, checking for exit conditions
@@ -233,6 +234,9 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     		
     		// If this branch exits, calc offset to jump by
     		if( doBranches.get( i ).exits() ) {
+    			/* Adding 3 as a magic number to the offset here fixes things
+    			 * except in the case of nested do statements.
+    			 */
     			int offset = stop.size();
     			for( int j = i + 1; j < doBranches.size(); j++ ){
     				offset += doBranchCode.get( j ).size() + 

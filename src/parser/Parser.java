@@ -78,7 +78,7 @@ public class Parser {
     private final static TokenSet STATEMENT_START_SET =
         LVALUE_START_SET.union( Token.KW_WHILE, Token.KW_IF,
           Token.KW_READ, Token.KW_WRITE,
-          Token.KW_CALL, Token.KW_BEGIN, Token.KW_SKIP );
+          Token.KW_CALL, Token.KW_BEGIN, Token.KW_SKIP, Token.KW_DO );
     /** Set of tokens that may start a Declaration. */
     private final static TokenSet DECLARATION_START_SET =
         new TokenSet( Token.KW_CONST, Token.KW_TYPE, Token.KW_VAR, 
@@ -577,10 +577,12 @@ public class Parser {
     	tokens.beginRule( "Do Statement", Token.KW_DO );
     	Position pos = tokens.getPosn();
     	tokens.match( Token.KW_DO );
-    	doBranches.add( parseDoBranch( recoverSet ) );
+    	doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
+    			Token.KW_OD) ) );
     	while( tokens.isMatch( Token.SEPARATOR ) ) {
     		tokens.match( Token.SEPARATOR );
-    		doBranches.add( parseDoBranch( recoverSet ) );
+    		doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
+        			Token.KW_OD) ) );
     	}
     	tokens.match( Token.KW_OD );
     	tokens.endRule( "Do Statement", recoverSet);

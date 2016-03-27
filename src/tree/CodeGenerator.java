@@ -223,14 +223,17 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     		doBranchCode.add( branch.genCode( this ) );
     	}
     	
+    	// Gen stop code
+    	Code stop = new Code();
+    	stop.generateOp( Operation.STOP );
+    	
     	// Append each branch to the main code, checking for exit conditions
     	for( int i = 0; i < doBranches.size(); i++ ) {
     		code.append( doBranchCode.get( i ) );
     		
     		// If this branch exits, calc offset to jump by
     		if( doBranches.get( i ).exits() ) {
-    			int offset = 0;
-    			
+    			int offset = stop.size();
     			for( int j = i + 1; j < doBranches.size(); j++ ){
     				offset += doBranchCode.get( j ).size() + 
     						Code.SIZE_JUMP_ALWAYS;
@@ -241,6 +244,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     			code.genJumpAlways( -(code.size() + Code.SIZE_JUMP_ALWAYS) );
     		}
     	}
+    	code.append( stop );
     	return code;
     }
     

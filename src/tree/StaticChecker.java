@@ -212,14 +212,23 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
 
 	public void visitDoNode(DoNode node) {
-		
-		
+		beginCheck("Do");
+		for( StatementNode branch : node.getBranches() ) {
+			branch.accept( this );
+		}
+		endCheck("Do");
 	}
 	
 	public void visitDoBranchNode(DoBranchNode node) {
-		
+		beginCheck("Do Branch");
+		// Check the condition
+		node.setCondition( checkCondition( node.getCondition() ) );
+		// Check the statements
+		node.getStatements().accept( this );
+		endCheck("Do Branch");
 	}
-    /*************************************************
+    
+	/*************************************************
      *  Expression node static checker visit methods
      *  The static checking visitor methods for expressions
      *  transform the expression to include resolve identifier

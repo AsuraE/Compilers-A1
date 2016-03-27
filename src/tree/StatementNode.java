@@ -412,6 +412,9 @@ public abstract class StatementNode {
     	public String toString( int level ) {
     		return "";
     	}
+    	public ArrayList<StatementNode.DoBranchNode> getBranches() {
+    		return doBranches;
+    	}
     	public boolean exits() {
     		for( StatementNode.DoBranchNode branch: doBranches ) {
     			if( branch.exits() ) {
@@ -448,6 +451,15 @@ public abstract class StatementNode {
     	public boolean exits() {
     		return exits;
     	}
+		public ExpNode getCondition() {
+			return cond;
+		}
+		public StatementNode getStatements() {
+			return statList;
+		}
+		public void setCondition( ExpNode cond ) {
+			this.cond = cond;
+		}
     }
     /** Tree node representing a "skip" statement. */
     public static class SkipNode extends StatementNode {

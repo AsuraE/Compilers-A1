@@ -213,12 +213,50 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code for a "do" statement. */
     public Code visitDoNode(StatementNode.DoNode node) {
     	Code code = new Code();
+    	ArrayList<StatementNode.DoBranchNode> doBranches = new 
+    			ArrayList<StatementNode.DoBranchNode>();
+    	doBranches.addAll( node.getBranches() );
+    	ArrayList<Code> doBranchCode = new ArrayList<Code>();
+    	
+    	// Generate code for branches first
+    	for( StatementNode.DoBranchNode branch : doBranches ) {
+    		doBranchCode.add( branch.genCode( this ) );
+    	}
+    	
+    	// Append each branch to the main code, checking for exit conditions
+    	for( int i = 0; i < doBranches.size(); i++ ) {
+    		code.append( doBranchCode.get( i ) );
+    		
+    		// If this branch exits, calc offset to jump by
+    		if( doBranches.get( i ).exits() ) {
+    			int offset = 0;
+    			
+    			for( int j = i + 1; j < doBranches.size(); j++ ){
+    				offset += doBranchCode.get( j ).size() + 
+    						Code.SIZE_JUMP_ALWAYS;
+    			}
+    			code.genJumpAlways( offset );
+    		} else {
+    			// Jump back to start of loop
+    			code.genJumpAlways( -(code.size() + Code.SIZE_JUMP_ALWAYS) );
+    		}
+    	}
     	return code;
     }
     
     /** Generate code for a "do" branch. */
     public Code visitDoBranchNode(StatementNode.DoBranchNode node) {
-    	Code code = new Code();
+    	/* Generate the code to evaluate the condition. */
+    	Code code = node.getCondition().genCode( this );
+    	 /* Generate the code for the loop body */
+        Code bodyCode = node.getStatements().genCode( this );
+        /* Add a branch over the loop body on false.
+         * The offset is the size of the loop body code plus 
+         * the size of the branch to follow the body.
+         */
+        code.genJumpIfFalse( bodyCode.size() + Code.SIZE_JUMP_ALWAYS );
+        /* Append the code for the body */
+        code.append( bodyCode );
     	return code;
     }
     

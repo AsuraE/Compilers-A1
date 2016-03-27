@@ -460,7 +460,7 @@ public class Parser {
     }
     /** Rule: Statement -> Assignment | WhileStatement | IfStatement
      *                  | ReadStatement | WriteStatement | CallStatement
-     *                  | CompoundStatement | SkipStatement
+     *                  | CompoundStatement | SkipStatement | DoStatement
      */
     private StatementNode parseStatement( TokenSet recoverSet ) {
         StatementNode result;

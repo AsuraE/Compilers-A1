@@ -212,6 +212,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     
     /** Generate code for a "do" statement. */
     public Code visitDoNode(StatementNode.DoNode node) {
+    	
     	Code code = new Code();
     	ArrayList<StatementNode.DoBranchNode> doBranches = new 
     			ArrayList<StatementNode.DoBranchNode>();
@@ -238,7 +239,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     			 * except in the case of nested do statements.
     			 */
     			int offset = stop.size();
-    			for( int j = i + 1; j < doBranches.size(); j++ ){
+    			for( int j = i + 1; j < doBranchCode.size(); j++ ){
     				offset += doBranchCode.get( j ).size() + 
     						Code.SIZE_JUMP_ALWAYS;
     			}
@@ -257,7 +258,12 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     	/* Generate the code to evaluate the condition. */
     	Code code = node.getCondition().genCode( this );
     	 /* Generate the code for the loop body */
-        Code bodyCode = node.getStatements().genCode( this );
+    	Code bodyCode = new Code();
+        
+    	for( StatementNode s : node.getStatements().getStatements() ) {
+            bodyCode.append( s.genCode( this ) );
+        }
+    	
         /* Add a branch over the loop body on false.
          * The offset is the size of the loop body code plus 
          * the size of the branch to follow the body.

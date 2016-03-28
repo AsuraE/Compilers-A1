@@ -127,10 +127,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 	        
 	        if( ! (lvalType instanceof Type.ReferenceType) ) {
 	            if( lvalType != Type.ERROR_TYPE ) {
-	                staticError( "variable (i.e., L-Value) expected", l.getPosition() );
+	                staticError( "variable (i.e., L-Value) expected", 
+	                		l.getPosition() );
 	            }
 	        } else if ( !dupes.add( l.toString() ) ) {
-		        	staticError( node.getVariableNames().get(i) + " assigned more than once", l.getPosition() );
+		        	staticError( node.getVariableNames().get(i) + 
+		        			" assigned more than once", l.getPosition() );
 	        } else {
 	            /* Validate that the right expression is assignment
 	             * compatible with the left value. This may require that the 
@@ -224,7 +226,9 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 		// Check the condition
 		node.setCondition( checkCondition( node.getCondition() ) );
 		// Check the statements
-		node.getStatements().accept( this );
+		for ( StatementNode s : node.getStatements().getStatements() ) {
+			s.accept( this );
+		}
 		endCheck("Do Branch");
 	}
     

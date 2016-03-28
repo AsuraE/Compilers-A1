@@ -427,10 +427,11 @@ public abstract class StatementNode {
     /** Tree node representing a "do" branch. */
     public static class DoBranchNode extends StatementNode {
     	ExpNode cond;
-    	StatementNode statList;
+    	StatementNode.ListNode statList;
     	boolean exits;
     	
-    	public DoBranchNode( Position pos, ExpNode cond, StatementNode statList, boolean exits ) {
+    	public DoBranchNode( Position pos, ExpNode cond, 
+    			StatementNode.ListNode statList, boolean exits ) {
     		super( pos );
     		this.cond = cond;
     		this.statList = statList;
@@ -454,7 +455,7 @@ public abstract class StatementNode {
 		public ExpNode getCondition() {
 			return cond;
 		}
-		public StatementNode getStatements() {
+		public StatementNode.ListNode getStatements() {
 			return statList;
 		}
 		public void setCondition( ExpNode cond ) {

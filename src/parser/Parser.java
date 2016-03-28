@@ -46,11 +46,13 @@ import tree.StatementNode;
  *  StatementList -> Statement { SEMICOLON Statement }
  *  Statement -> WhileStatement | IfStatement | CallStatement | Assignment | 
  *               ReadStatement | WriteStatement | CompoundStatement | 
- *               SkipStatement
+ *               SkipStatement | DoStatement
  *  SkipStatement -> KW_SKIP
  *  Assignment -> LValueList ASSIGN ConditionList
  *  LValueList -> LValue { COMMA LValue }
  *  ConditionList -> Condition { COMMA Condition }
+ *  DoStatement -> KW_DO DoBranch { SEPARATOR DoBranch } KW_OD
+ *  DoBranch -> Condition KW_THEN StatementList [ KW_EXIT ]
  *  WhileStatement -> KW_WHILE Condition KW_DO Statement
  *  IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
  *  CallStatement -> KW_CALL IDENTIFIER LPAREN ActualParameters RPAREN
@@ -574,18 +576,20 @@ public class Parser {
     private StatementNode parseDoStatement( TokenSet recoverSet ) {
     	assert tokens.isMatch( Token.KW_DO );
     	tokens.beginRule( "Do Statement", Token.KW_DO );
+    	
     	ArrayList<StatementNode.DoBranchNode> doBranches = new 
     			ArrayList<StatementNode.DoBranchNode>();
     	Position pos = tokens.getPosn();
     	tokens.match( Token.KW_DO );
-    	
     	doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
     			Token.KW_OD) ) );
+    	
     	while( tokens.isMatch( Token.SEPARATOR ) ) {
     		tokens.match( Token.SEPARATOR );
     		doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
         			Token.KW_OD) ) );
     	}
+    	
     	tokens.match( Token.KW_OD, recoverSet );
     	tokens.endRule( "Do Statement", recoverSet);
     	return new StatementNode.DoNode( pos, doBranches );
@@ -595,14 +599,18 @@ public class Parser {
     private StatementNode.DoBranchNode parseDoBranch( TokenSet recoverSet ) {
     	tokens.beginRule( "Do Branch", CONDITION_START_SET );
     	Position pos = tokens.getPosn();
+    	
     	ExpNode cond = parseCondition( recoverSet.union( Token.KW_THEN ) );
     	tokens.match( Token.KW_THEN, STATEMENT_START_SET );
-    	StatementNode statList = parseStatementList( recoverSet.union( Token.KW_EXIT ) );
+    	StatementNode.ListNode statList = (StatementNode.ListNode) parseStatementList( 
+    			recoverSet.union( Token.KW_EXIT ) );
     	boolean exits = false;
+    	
     	if( tokens.isMatch( Token.KW_EXIT ) ) {
     		tokens.match( Token.KW_EXIT );
     		exits = true;
     	}
+    	
     	tokens.endRule( "Do Branch", recoverSet );
     	return new StatementNode.DoBranchNode( pos, cond, statList, exits );
     }

@@ -110,14 +110,11 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
     /** Code generation for an assignment statement. */
     public Code visitAssignmentNode(StatementNode.AssignmentNode node) {
-
     	Code code = new Code();
-    	
     	/* Generate code to evaluate the expressions first */
     	for ( ExpNode exp : node.getExps() ) {
     		code.append( exp.genCode(this) );
     	}
-    	
         /* Generate the code to load the addresses of the variables (FIFO) */
     	for ( int i = node.getVariables().size() - 1; i >= 0; i-- ) {
 	        code.append( node.getVariables().get(i).genCode( this ) );
@@ -211,36 +208,28 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     
     /** Generate code for a "do" statement. */
     public Code visitDoNode(StatementNode.DoNode node) {
-    	
     	Code code = new Code();
     	ArrayList<StatementNode.DoBranchNode> doBranches = new 
     			ArrayList<StatementNode.DoBranchNode>();
     	doBranches.addAll( node.getBranches() );
     	ArrayList<Code> doBranchCode = new ArrayList<Code>();
-    	
     	// Generate code for branches first
     	for( StatementNode.DoBranchNode branch : doBranches ) {
     		doBranchCode.add( branch.genCode( this ) );
     	}
-    	
     	// Generate stop code
     	Code stop = new Code();
     	stop.genLoadConstant( StackMachine.NO_TRUE_BRANCH );
     	stop.generateOp( Operation.STOP );
-    	
     	// Append each branch to the main code, checking for exit conditions
     	for( int i = 0; i < doBranches.size(); i++ ) {
     		code.append( doBranchCode.get( i ) );
-    		
     		// If this branch exits, calc offset to jump by
     		if( doBranches.get( i ).exits() ) {
-    			
     			int offset = stop.size();
-    			
     			for( int j = i + 1; j < doBranchCode.size(); j++ ){
     				offset += doBranchCode.get( j ).size() + Code.SIZE_JUMP_ALWAYS;
     			}
-    			
     			code.genJumpAlways( offset );
     		} else {
     			// Jump back to start of loop
@@ -257,11 +246,9 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     	Code code = node.getCondition().genCode( this );
     	 /* Generate the code for the loop body */
     	Code bodyCode = new Code();
-        
     	for( StatementNode s : node.getStatements().getStatements() ) {
             bodyCode.append( s.genCode( this ) );
         }
-    	
         /* Add a branch over the loop body on false.
          * The offset is the size of the loop body code plus 
          * the size of the branch to follow the body.
@@ -274,6 +261,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     
     /** Generate code for a "skip" statement. */
     public Code visitSkipNode(StatementNode.SkipNode node) {
+    	/* Empty code since skip does nothing */
     	return new Code();
     }
     

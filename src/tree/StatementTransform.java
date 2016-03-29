@@ -25,11 +25,14 @@ public interface  StatementTransform<ResultType> {
     ResultType visitWriteNode( StatementNode.WriteNode node);
 
     ResultType visitCallNode( StatementNode.CallNode node);
+    
     ResultType visitIfNode( StatementNode.IfNode node);
 
     ResultType visitWhileNode( StatementNode.WhileNode node);
     
     ResultType visitSkipNode( StatementNode.SkipNode node);
+    
     ResultType visitDoNode( StatementNode.DoNode node);
+    
     ResultType visitDoBranchNode( StatementNode.DoBranchNode node);
 }

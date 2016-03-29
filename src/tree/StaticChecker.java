@@ -106,15 +106,13 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginCheck("Assignment");
-        
-        // Check the left side left value.
         ArrayList<ExpNode> left = new ArrayList<ExpNode>();
         ArrayList<ExpNode> right = new ArrayList<ExpNode>();
         HashSet<String> dupes = new HashSet<String>();
         left.addAll( node.getVariables() );
         right.addAll( node.getExps() );
-        
         for ( int i = 0; i < left.size(); i++ ) {
+        	// Check the left side left value.
         	ExpNode l = left.get(i).transform( this );
         	left.set( i, l );
         	node.setVariables( left );
@@ -123,8 +121,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         	right.set( i, r );
         	node.setExps( right );
 	        // Validate that it is a true left value and not a constant.
-	        Type lvalType = l.getType();
-	        
+	        Type lvalType = l.getType(); 
 	        if( ! (lvalType instanceof Type.ReferenceType) ) {
 	            if( lvalType != Type.ERROR_TYPE ) {
 	                staticError( "variable (i.e., L-Value) expected", 
@@ -142,7 +139,6 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 	            right.set( i, ( baseType.coerceExp( r ) ) );
 	        }		
         }
-        
         endCheck("Assignment");
     }
 

@@ -535,13 +535,8 @@ public class Parser {
         			recoverSet.union( Token.COMMA 
         			) ) );
         }
-
         /* At this point left and right could be different sizes. 
          * If left != right , we want to add in error nodes to balance it out.
-         */
-        
-        /* Contain while loop in an if statement so that error is only 
-         * output once.
          */
         if ( left.size() > right.size() ) {
         	errors.error("number of variables doesn't match number of "
@@ -556,7 +551,6 @@ public class Parser {
         		left.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
         	}
         }
-        
         tokens.endRule( "Assignment", recoverSet );
         return new StatementNode.AssignmentNode( pos, left, right );
     }
@@ -575,21 +569,18 @@ public class Parser {
     /** Rule: DoStatement -> KW_DO DoBranch { SEPARATOR DoBranch } KW_OD */
     private StatementNode parseDoStatement( TokenSet recoverSet ) {
     	assert tokens.isMatch( Token.KW_DO );
-    	tokens.beginRule( "Do Statement", Token.KW_DO );
-    	
+    	tokens.beginRule( "Do Statement", Token.KW_DO );	
     	ArrayList<StatementNode.DoBranchNode> doBranches = new 
     			ArrayList<StatementNode.DoBranchNode>();
     	Position pos = tokens.getPosn();
     	tokens.match( Token.KW_DO );
     	doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
     			Token.KW_OD) ) );
-    	
     	while( tokens.isMatch( Token.SEPARATOR ) ) {
     		tokens.match( Token.SEPARATOR );
     		doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
         			Token.KW_OD) ) );
     	}
-    	
     	tokens.match( Token.KW_OD, recoverSet );
     	tokens.endRule( "Do Statement", recoverSet);
     	return new StatementNode.DoNode( pos, doBranches );
@@ -598,19 +589,16 @@ public class Parser {
     /** Rule: DoBranch -> Condition KW_THEN StatementList [KW_EXIT] */
     private StatementNode.DoBranchNode parseDoBranch( TokenSet recoverSet ) {
     	tokens.beginRule( "Do Branch", CONDITION_START_SET );
-    	Position pos = tokens.getPosn();
-    	
+    	Position pos = tokens.getPosn(); 	
     	ExpNode cond = parseCondition( recoverSet.union( Token.KW_THEN ) );
     	tokens.match( Token.KW_THEN, STATEMENT_START_SET );
-    	StatementNode.ListNode statList = (StatementNode.ListNode) parseStatementList( 
-    			recoverSet.union( Token.KW_EXIT ) );
-    	boolean exits = false;
-    	
+    	StatementNode.ListNode statList = (StatementNode.ListNode) 
+    			parseStatementList( recoverSet.union( Token.KW_EXIT ) );
+    	boolean exits = false; 	
     	if( tokens.isMatch( Token.KW_EXIT ) ) {
     		tokens.match( Token.KW_EXIT );
     		exits = true;
-    	}
-    	
+    	}	
     	tokens.endRule( "Do Branch", recoverSet );
     	return new StatementNode.DoBranchNode( pos, cond, statList, exits );
     }

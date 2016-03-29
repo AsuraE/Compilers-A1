@@ -22,11 +22,14 @@ public interface StatementVisitor {
     void visitWriteNode( StatementNode.WriteNode node);
 
     void visitCallNode( StatementNode.CallNode node);
+    
     void visitIfNode( StatementNode.IfNode node);
 
     void visitWhileNode( StatementNode.WhileNode node);
     
     void visitSkipNode( StatementNode.SkipNode node);
+    
     void visitDoNode( StatementNode.DoNode node );
+    
     void visitDoBranchNode( StatementNode.DoBranchNode node );
 }

@@ -153,9 +153,9 @@ public abstract class StatementNode {
 
     /** Tree node representing an assignment statement. */
     public static class AssignmentNode extends StatementNode {
-        /** Tree node for expression on left hand side of an assignment. */
+        /* Tree nodes for expressions on left hand side of an assignment. */
         private ArrayList<ExpNode> lValues;
-        /** Tree node for the expression to be assigned. */
+        /* Tree nodes for the expressions to be assigned. */
         private ArrayList<ExpNode> exps;
 
         public AssignmentNode( Position pos, ArrayList<ExpNode> left, 
@@ -193,13 +193,11 @@ public abstract class StatementNode {
 	                names.add( "<noname>" );
 	            }
         	}
-        	
         	return names;
         }
         @Override
         public String toString( int level ) {
         	String s = "";
-        	
         	for ( int i = 0; i < lValues.size(); i++ ) {
         		s += lValues.get(i);
         		if ( i < lValues.size() - 1 ) {
@@ -406,7 +404,15 @@ public abstract class StatementNode {
     	}
     	@Override
     	public String toString( int level ) {
-    		return "";
+	    	String s = "DO ";
+	    	for( int i = 0; i < doBranches.size(); i++ ) {
+	    		if( i > 0 ) {
+	    			s += "[]";
+	    		}
+	    		s += doBranches.get( i ).toString( level ) + newLine( level );
+	    	}
+	    	s += "od";
+    		return s;
     	}
     	public ArrayList<StatementNode.DoBranchNode> getBranches() {
     		return doBranches;
@@ -443,7 +449,11 @@ public abstract class StatementNode {
     	}
     	@Override
     	public String toString( int level ) {
-    		return "";
+    		String s = cond.toString() + " THEN " + statList.toString();
+    		if( exits ){
+    			s += " EXIT";
+    		}
+    		return s;
     	}
     	public boolean exits() {
     		return exits;

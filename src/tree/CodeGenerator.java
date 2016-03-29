@@ -110,8 +110,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
     /** Code generation for an assignment statement. */
     public Code visitAssignmentNode(StatementNode.AssignmentNode node) {
-    	ArrayList<ExpNode> vars = new ArrayList<ExpNode>();
-    	vars.addAll( node.getVariables() );
+
     	Code code = new Code();
     	
     	/* Generate code to evaluate the expressions first */
@@ -120,11 +119,11 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     	}
     	
         /* Generate the code to load the addresses of the variables (FIFO) */
-    	for ( int i = vars.size() - 1; i >= 0; i-- ) {
-	        code.append( vars.get(i).genCode( this ) );
+    	for ( int i = node.getVariables().size() - 1; i >= 0; i-- ) {
+	        code.append( node.getVariables().get(i).genCode( this ) );
 	        /* Generate the store based on the type/size of value */
 	        code.append( genStore( 
-	                (Type.ReferenceType)vars.get(i).getType() ) );
+	                (Type.ReferenceType)node.getVariables().get(i).getType() ) );
     	}
         return code;
     }
@@ -235,14 +234,13 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     		
     		// If this branch exits, calc offset to jump by
     		if( doBranches.get( i ).exits() ) {
-    			/* Adding 3 as a magic number to the offset here fixes things
-    			 * except in the case of nested do statements.
-    			 */
+    			
     			int offset = stop.size();
+    			
     			for( int j = i + 1; j < doBranchCode.size(); j++ ){
-    				offset += doBranchCode.get( j ).size() + 
-    						Code.SIZE_JUMP_ALWAYS;
+    				offset += doBranchCode.get( j ).size() + Code.SIZE_JUMP_ALWAYS;
     			}
+    			
     			code.genJumpAlways( offset );
     		} else {
     			// Jump back to start of loop

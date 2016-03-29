@@ -1,0 +1,12 @@
+var 
+  x : int;
+  y : int;
+  gcd : int;
+begin
+  x := 12;
+  y := 21;
+  gcd := y;
+  write x;
+  write y;
+  write gcd
+end

@@ -161,10 +161,8 @@ public abstract class StatementNode {
         public AssignmentNode( Position pos, ArrayList<ExpNode> left, 
         		ArrayList<ExpNode> right ) {
             super( pos );
-            this.lValues = new ArrayList<ExpNode>();
-            this.exps = new ArrayList<ExpNode>();
-            this.lValues.addAll( left );
-            this.exps.addAll( right );
+            this.lValues = left;
+            this.exps = right;
         }
         @Override
         public void accept( StatementVisitor visitor ) {
@@ -178,15 +176,13 @@ public abstract class StatementNode {
             return lValues;
         }
         public void setVariables( ArrayList<ExpNode> variables ) {
-            this.lValues = new ArrayList<ExpNode>();
-            this.lValues.addAll( variables );
+        	this.lValues = variables;
         }
         public ArrayList<ExpNode> getExps() {
             return exps;
         }
         public void setExps(ArrayList<ExpNode> exps) {
-            this.exps = new ArrayList<ExpNode>();
-            this.exps.addAll( exps );
+        	this.exps = exps;
         }
         public ArrayList<String> getVariableNames() {
         	ArrayList<String> names = new ArrayList<String>();

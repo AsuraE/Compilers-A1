@@ -1,0 +1,15 @@
+var 
+  a : int;
+  b : int;
+  c : int;
+begin
+  a := 1;
+  b := 2;
+  c := 3;
+  a := b;
+  b := c;
+  c := a;
+  write a;
+  write b;
+  write c
+end

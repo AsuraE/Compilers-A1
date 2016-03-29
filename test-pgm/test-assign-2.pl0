@@ -1,0 +1,25 @@
+var 
+  x : int;
+  y : int;
+  z : int;
+  a : int;
+  b : int;
+  c : int;
+begin
+  x := 12;
+  y := 21;
+  z := 33;
+  a := 1;
+  b := 2;
+  c := 3;
+  a := b;
+  b := c;
+  c := a;
+  x,y,z := y,z,x;
+  write x;
+  write y;
+  write z;
+  write a;
+  write b;
+  write c
+end

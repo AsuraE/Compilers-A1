@@ -12,10 +12,8 @@ begin
   a := 1;
   b := 2;
   c := 3;
-  a := b;
-  b := c;
-  c := a;
   x,y,z := y,z,x;
+  a,b := c,a;
   write x;
   write y;
   write z;

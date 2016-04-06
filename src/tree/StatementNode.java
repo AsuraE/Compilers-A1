@@ -159,7 +159,7 @@ public abstract class StatementNode {
         private ArrayList<ExpNode> exps;
 
         public AssignmentNode( Position pos, ArrayList<ExpNode> left, 
-        		ArrayList<ExpNode> right ) {
+                ArrayList<ExpNode> right ) {
             super( pos );
             this.lValues = left;
             this.exps = right;
@@ -176,41 +176,41 @@ public abstract class StatementNode {
             return lValues;
         }
         public void setVariables( ArrayList<ExpNode> variables ) {
-        	this.lValues = variables;
+            this.lValues = variables;
         }
         public ArrayList<ExpNode> getExps() {
             return exps;
         }
         public void setExps(ArrayList<ExpNode> exps) {
-        	this.exps = exps;
+            this.exps = exps;
         }
         public ArrayList<String> getVariableNames() {
-        	ArrayList<String> names = new ArrayList<String>();
-        	for ( ExpNode lValue : lValues ) {
-        		if( lValue instanceof ExpNode.VariableNode ) {
-	                names.add( ((ExpNode.VariableNode)lValue).getVariable().getIdent() );
-	            } else {
-	                names.add( "<noname>" );
-	            }
-        	}
-        	return names;
+            ArrayList<String> names = new ArrayList<String>();
+            for( ExpNode lValue : lValues ) {
+                if( lValue instanceof ExpNode.VariableNode ) {
+                    names.add( ((ExpNode.VariableNode)lValue).getVariable().getIdent() );
+                } else {
+                    names.add( "<noname>" );
+                }
+            }
+            return names;
         }
         @Override
         public String toString( int level ) {
-        	String s = "";
-        	for ( int i = 0; i < lValues.size(); i++ ) {
-        		s += lValues.get(i);
-        		if ( i < lValues.size() - 1 ) {
-        			s += ",";
-        		}
-        	}
-        	s += " := ";
-        	for ( int i = 0; i < exps.size(); i++ ) {
-        		s += exps.get(i);
-        		if ( i < exps.size() - 1 ) {
-        			s += ",";
-        		}
-        	}
+            String s = "";
+            for( int i = 0; i < lValues.size(); i++ ) {
+                s += lValues.get(i);
+                if ( i < lValues.size() - 1 ) {
+                    s += ",";
+                }
+            }
+            s += " := ";
+            for( int i = 0; i < exps.size(); i++ ) {
+                s += exps.get(i);
+                if ( i < exps.size() - 1 ) {
+                    s += ",";
+                }
+            }
             return s;
         }
     }
@@ -386,106 +386,106 @@ public abstract class StatementNode {
     
     /** Tree node representing a "do" statement. */
     public static class DoNode extends StatementNode {
-    	
-    	private ArrayList<StatementNode.DoBranchNode> doBranches;
-    	
-    	public DoNode( Position pos, ArrayList<StatementNode.DoBranchNode> doBranches ) {
-    		super( pos );
-    		this.doBranches = new ArrayList<StatementNode.DoBranchNode>();
-    		this.doBranches.addAll( doBranches );
-    	}
-    	@Override
-    	public void accept( StatementVisitor visitor ) {
-    		visitor.visitDoNode( this );
-    	}
-    	@Override
-    	public Code genCode( StatementTransform<Code> visitor ) {
-    		return visitor.visitDoNode( this );
-    	}
-    	@Override
-    	public String toString( int level ) {
-	    	String s = "DO ";
-	    	for( int i = 0; i < doBranches.size(); i++ ) {
-	    		if( i > 0 ) {
-	    			s += "[]";
-	    		}
-	    		s += doBranches.get( i ).toString( level ) + newLine( level );
-	    	}
-	    	s += "od";
-    		return s;
-    	}
-    	public ArrayList<StatementNode.DoBranchNode> getBranches() {
-    		return doBranches;
-    	}
-    	public boolean exits() {
-    		for( StatementNode.DoBranchNode branch: doBranches ) {
-    			if( branch.exits() ) {
-    				return true;
-    			}
-    		}
-    		return false;
-    	}
+        
+        private ArrayList<StatementNode.DoBranchNode> doBranches;
+        
+        public DoNode( Position pos, ArrayList<StatementNode.DoBranchNode> doBranches ) {
+            super( pos );
+            this.doBranches = new ArrayList<StatementNode.DoBranchNode>();
+            this.doBranches.addAll( doBranches );
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitDoNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitDoNode( this );
+        }
+        @Override
+        public String toString( int level ) {
+            String s = "DO ";
+            for( int i = 0; i < doBranches.size(); i++ ) {
+                if( i > 0 ) {
+                    s += "[]";
+                }
+                s += doBranches.get( i ).toString( level ) + newLine( level );
+            }
+            s += "od";
+            return s;
+        }
+        public ArrayList<StatementNode.DoBranchNode> getBranches() {
+            return doBranches;
+        }
+        public boolean exits() {
+            for( StatementNode.DoBranchNode branch: doBranches ) {
+                if( branch.exits() ) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
     /** Tree node representing a "do" branch. */
     public static class DoBranchNode extends StatementNode {
-    	ExpNode cond;
-    	StatementNode.ListNode statList;
-    	boolean exits;
-    	
-    	public DoBranchNode( Position pos, ExpNode cond, 
-    			StatementNode.ListNode statList, boolean exits ) {
-    		super( pos );
-    		this.cond = cond;
-    		this.statList = statList;
-    		this.exits = exits;
-    	}
-    	@Override
-    	public void accept( StatementVisitor visitor ) {
-    		visitor.visitDoBranchNode( this );
-    	}
-    	@Override
-    	public Code genCode( StatementTransform<Code> visitor ) {
-    		return visitor.visitDoBranchNode( this );
-    	}
-    	@Override
-    	public String toString( int level ) {
-    		String s = cond.toString() + " THEN " + statList.toString();
-    		if( exits ){
-    			s += " EXIT";
-    		}
-    		return s;
-    	}
-    	public boolean exits() {
-    		return exits;
-    	}
-		public ExpNode getCondition() {
-			return cond;
-		}
-		public StatementNode.ListNode getStatements() {
-			return statList;
-		}
-		public void setCondition( ExpNode cond ) {
-			this.cond = cond;
-		}
+        ExpNode cond;
+        StatementNode.ListNode statList;
+        boolean exits;
+        
+        public DoBranchNode( Position pos, ExpNode cond, 
+                StatementNode.ListNode statList, boolean exits ) {
+            super( pos );
+            this.cond = cond;
+            this.statList = statList;
+            this.exits = exits;
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitDoBranchNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitDoBranchNode( this );
+        }
+        @Override
+        public String toString( int level ) {
+            String s = cond.toString() + " THEN " + statList.toString();
+            if( exits ){
+                s += " EXIT";
+            }
+            return s;
+        }
+        public boolean exits() {
+            return exits;
+        }
+        public ExpNode getCondition() {
+            return cond;
+        }
+        public StatementNode.ListNode getStatements() {
+            return statList;
+        }
+        public void setCondition( ExpNode cond ) {
+            this.cond = cond;
+        }
     }
     /** Tree node representing a "skip" statement. */
     public static class SkipNode extends StatementNode {
 
-		public SkipNode( Position pos ) {
-			super( pos );
-		}
-		@Override
-		public void accept( StatementVisitor visitor ) {
-			visitor.visitSkipNode( this );
-		}
-		@Override
-		public Code genCode( StatementTransform<Code> visitor ) {
-			return visitor.visitSkipNode( this );
-		}
-    	@Override
-    	public String toString( int level ) {
-    		return "SKIP";
-    	}
+        public SkipNode( Position pos ) {
+            super( pos );
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitSkipNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitSkipNode( this );
+        }
+        @Override
+        public String toString( int level ) {
+            return "SKIP";
+        }
     }
 }
 

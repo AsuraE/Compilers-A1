@@ -111,33 +111,31 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         HashSet<String> dupes = new HashSet<String>();
         left.addAll( node.getVariables() );
         right.addAll( node.getExps() );
-        for ( int i = 0; i < left.size(); i++ ) {
-        	// Check the left side left value.
-        	ExpNode l = left.get(i).transform( this );
-        	left.set( i, l );
-        	node.setVariables( left );
-        	// Check the right side expression.
-        	ExpNode r = right.get(i).transform( this );
-        	right.set( i, r );
-        	node.setExps( right );
-	        // Validate that it is a true left value and not a constant.
-	        Type lvalType = l.getType(); 
-	        if( ! (lvalType instanceof Type.ReferenceType) ) {
-	            if( lvalType != Type.ERROR_TYPE ) {
-	                staticError( "variable (i.e., L-Value) expected", 
-	                		l.getPosition() );
-	            }
-	        } else if ( !dupes.add( l.toString() ) ) {
-		        	staticError( node.getVariableNames().get(i) + 
-		        			" assigned more than once", l.getPosition() );
-	        } else {
-	            /* Validate that the right expression is assignment
-	             * compatible with the left value. This may require that the 
-	             * right side expression is coerced to the dereferenced
-	             * type of the left side LValue. */
-	            Type baseType = ((Type.ReferenceType)lvalType).getBaseType();
-	            right.set( i, ( baseType.coerceExp( r ) ) );
-	        }		
+        for( int i = 0; i < left.size(); i++ ) {
+            // Check the left side left value.
+            ExpNode l = left.get(i).transform( this );
+            left.set( i, l );
+            node.setVariables( left );
+            // Check the right side expression.
+            ExpNode r = right.get(i).transform( this );
+            right.set( i, r );
+            node.setExps( right );
+            // Validate that it is a true left value and not a constant.
+            Type lvalType = l.getType(); 
+            if( !( lvalType instanceof Type.ReferenceType ) ) {
+                if( lvalType != Type.ERROR_TYPE ) {
+                    staticError( "variable (i.e., L-Value) expected", l.getPosition() );
+                }
+            } else if( !dupes.add( l.toString() ) ) {
+                    staticError( node.getVariableNames().get(i) + " assigned more than once", l.getPosition() );
+            } else {
+                /* Validate that the right expression is assignment
+                 * compatible with the left value. This may require that the 
+                 * right side expression is coerced to the dereferenced
+                 * type of the left side LValue. */
+                Type baseType = ((Type.ReferenceType)lvalType).getBaseType();
+                right.set( i, ( baseType.coerceExp( r ) ) );
+            }       
         }
         endCheck("Assignment");
     }
@@ -206,29 +204,29 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
     
     public void visitSkipNode(StatementNode.SkipNode node) {
-    	// Nothing to do - skip is blank
+        // Nothing to do - skip is blank
     }
 
-	public void visitDoNode(DoNode node) {
-		beginCheck("Do");
-		for( StatementNode branch : node.getBranches() ) {
-			branch.accept( this );
-		}
-		endCheck("Do");
-	}
-	
-	public void visitDoBranchNode(DoBranchNode node) {
-		beginCheck("Do Branch");
-		// Check the condition
-		node.setCondition( checkCondition( node.getCondition() ) );
-		// Check the statements
-		for ( StatementNode s : node.getStatements().getStatements() ) {
-			s.accept( this );
-		}
-		endCheck("Do Branch");
-	}
+    public void visitDoNode(DoNode node) {
+        beginCheck("Do");
+        for( StatementNode branch : node.getBranches() ) {
+            branch.accept( this );
+        }
+        endCheck("Do");
+    }
     
-	/*************************************************
+    public void visitDoBranchNode(DoBranchNode node) {
+        beginCheck("Do Branch");
+        // Check the condition
+        node.setCondition( checkCondition( node.getCondition() ) );
+        // Check the statements
+        for( StatementNode s : node.getStatements().getStatements() ) {
+            s.accept( this );
+        }
+        endCheck("Do Branch");
+    }
+    
+    /*************************************************
      *  Expression node static checker visit methods
      *  The static checking visitor methods for expressions
      *  transform the expression to include resolve identifier

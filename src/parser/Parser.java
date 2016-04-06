@@ -492,11 +492,11 @@ public class Parser {
             result = parseCompoundStatement( recoverSet ); 
             break;
         case KW_SKIP:
-        	result = parseSkipStatement( recoverSet );
-        	break;
+            result = parseSkipStatement( recoverSet );
+            break;
         case KW_DO:
-        	result = parseDoStatement( recoverSet );
-        	break;
+            result = parseDoStatement( recoverSet );
+            break;
         default:
             fatal( "parse Statement " );
             result = new StatementNode.ErrorNode( tokens.getPosn() );
@@ -507,49 +507,43 @@ public class Parser {
     /** Rule: Assignment -> LValueList ASSIGN ConditionList */
     private StatementNode.AssignmentNode parseAssignment(TokenSet recoverSet) {
         if( !tokens.beginRule( "Assignment", LVALUE_START_SET, recoverSet ) ) {
-        	ArrayList<ExpNode> el = new ArrayList<ExpNode>();
+            ArrayList<ExpNode> el = new ArrayList<ExpNode>();
             ArrayList<ExpNode> er = new ArrayList<ExpNode>();
             el.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
             er.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
-        	return new StatementNode.AssignmentNode( tokens.getPosn(), el, er );
+            return new StatementNode.AssignmentNode( tokens.getPosn(), el, er );
         }
         /* Non-standard recovery set includes EQUALS because a common syntax
          * error is to use EQUALS instead of ASSIGN.
          */
         ArrayList<ExpNode> left = new ArrayList<ExpNode>();
         ArrayList<ExpNode> right = new ArrayList<ExpNode>();
-        left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS,
-        		Token.COMMA ) ) );
+        left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS, Token.COMMA ) ) );
         Position pos = tokens.getPosn();
-        while ( tokens.isMatch( Token.COMMA ) ) {
-        	tokens.match( Token.COMMA, LVALUE_START_SET );
-        	left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS,
-        			Token.COMMA ) ) );
-        	pos = tokens.getPosn();
+        while( tokens.isMatch( Token.COMMA ) ) {
+            tokens.match( Token.COMMA, LVALUE_START_SET );
+            left.add( parseLValue( recoverSet.union( Token.ASSIGN, Token.EQUALS, Token.COMMA ) ) );
+            pos = tokens.getPosn();
         }
         tokens.match( Token.ASSIGN, CONDITION_START_SET );
         right.add( parseCondition( recoverSet.union( Token.COMMA ) ) );
-        while ( tokens.isMatch( Token.COMMA ) ) {
-        	tokens.match( Token.COMMA, CONDITION_START_SET );
-        	right.add( parseCondition( 
-        			recoverSet.union( Token.COMMA 
-        			) ) );
+        while( tokens.isMatch( Token.COMMA ) ) {
+            tokens.match( Token.COMMA, CONDITION_START_SET );
+            right.add( parseCondition( recoverSet.union( Token.COMMA ) ) );
         }
         /* At this point left and right could be different sizes. 
          * If left != right , we want to add in error nodes to balance it out.
          */
-        if ( left.size() > right.size() ) {
-        	errors.error("number of variables doesn't match number of "
-        			+ "expressions in assignment", pos);
-        	while ( left.size() > right.size() ) {
-        		right.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
-        	}
-        } else if ( left.size() < right.size() ) {
-        	errors.error("number of variables doesn't match number of "
-        			+ "expressions in assignment", pos);
-        	while ( left.size() < right.size() ) {
-        		left.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
-        	}
+        if( left.size() > right.size() ) {
+            errors.error("number of variables doesn't match number of expressions in assignment", pos);
+            while( left.size() > right.size() ) {
+                right.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+            }
+        } else if( left.size() < right.size() ) {
+            errors.error("number of variables doesn't match number of expressions in assignment", pos);
+            while( left.size() < right.size() ) {
+                left.add( new ExpNode.ErrorNode( tokens.getPosn() ) );
+            }
         }
         tokens.endRule( "Assignment", recoverSet );
         return new StatementNode.AssignmentNode( pos, left, right );
@@ -568,39 +562,36 @@ public class Parser {
     }
     /** Rule: DoStatement -> KW_DO DoBranch { SEPARATOR DoBranch } KW_OD */
     private StatementNode parseDoStatement( TokenSet recoverSet ) {
-    	assert tokens.isMatch( Token.KW_DO );
-    	tokens.beginRule( "Do Statement", Token.KW_DO );	
-    	ArrayList<StatementNode.DoBranchNode> doBranches = new 
-    			ArrayList<StatementNode.DoBranchNode>();
-    	Position pos = tokens.getPosn();
-    	tokens.match( Token.KW_DO );
-    	doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
-    			Token.KW_OD) ) );
-    	while( tokens.isMatch( Token.SEPARATOR ) ) {
-    		tokens.match( Token.SEPARATOR );
-    		doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, 
-        			Token.KW_OD) ) );
-    	}
-    	tokens.match( Token.KW_OD, recoverSet );
-    	tokens.endRule( "Do Statement", recoverSet);
-    	return new StatementNode.DoNode( pos, doBranches );
+        assert tokens.isMatch( Token.KW_DO );
+        tokens.beginRule( "Do Statement", Token.KW_DO );    
+        ArrayList<StatementNode.DoBranchNode> doBranches = new ArrayList<StatementNode.DoBranchNode>();
+        Position pos = tokens.getPosn();
+        tokens.match( Token.KW_DO );
+        doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, Token.KW_OD) ) );
+        while( tokens.isMatch( Token.SEPARATOR ) ) {
+            tokens.match( Token.SEPARATOR );
+            doBranches.add( parseDoBranch( recoverSet.union( Token.SEPARATOR, Token.KW_OD) ) );
+        }
+        tokens.match( Token.KW_OD, recoverSet );
+        tokens.endRule( "Do Statement", recoverSet);
+        return new StatementNode.DoNode( pos, doBranches );
     }
     
     /** Rule: DoBranch -> Condition KW_THEN StatementList [KW_EXIT] */
     private StatementNode.DoBranchNode parseDoBranch( TokenSet recoverSet ) {
-    	tokens.beginRule( "Do Branch", CONDITION_START_SET );
-    	Position pos = tokens.getPosn(); 	
-    	ExpNode cond = parseCondition( recoverSet.union( Token.KW_THEN ) );
-    	tokens.match( Token.KW_THEN, STATEMENT_START_SET );
-    	StatementNode.ListNode statList = (StatementNode.ListNode) 
-    			parseStatementList( recoverSet.union( Token.KW_EXIT ) );
-    	boolean exits = false; 	
-    	if( tokens.isMatch( Token.KW_EXIT ) ) {
-    		tokens.match( Token.KW_EXIT );
-    		exits = true;
-    	}	
-    	tokens.endRule( "Do Branch", recoverSet );
-    	return new StatementNode.DoBranchNode( pos, cond, statList, exits );
+        tokens.beginRule( "Do Branch", CONDITION_START_SET );
+        Position pos = tokens.getPosn();    
+        ExpNode cond = parseCondition( recoverSet.union( Token.KW_THEN ) );
+        tokens.match( Token.KW_THEN, STATEMENT_START_SET );
+        StatementNode.ListNode statList = (StatementNode.ListNode) 
+                parseStatementList( recoverSet.union( Token.KW_EXIT ) );
+        boolean exits = false;  
+        if( tokens.isMatch( Token.KW_EXIT ) ) {
+            tokens.match( Token.KW_EXIT );
+            exits = true;
+        }   
+        tokens.endRule( "Do Branch", recoverSet );
+        return new StatementNode.DoBranchNode( pos, cond, statList, exits );
     }
     
     /** Rule: IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
@@ -667,11 +658,11 @@ public class Parser {
     }
     /** Rule: SkipStatement -> KW_SKIP */
     private StatementNode parseSkipStatement( TokenSet recoverSet ) {
-    	assert tokens.isMatch( Token.KW_SKIP );
-    	tokens.beginRule( "Skip Statement", Token.KW_SKIP);
-    	tokens.match(Token.KW_SKIP);
-    	Position pos = tokens.getPosn();
-    	return new StatementNode.SkipNode(pos);
+        assert tokens.isMatch( Token.KW_SKIP );
+        tokens.beginRule( "Skip Statement", Token.KW_SKIP);
+        tokens.match(Token.KW_SKIP);
+        Position pos = tokens.getPosn();
+        return new StatementNode.SkipNode(pos);
     }
     /** Rule: Condition -> RelCondition */
     private ExpNode parseCondition( TokenSet recoverSet ) {
